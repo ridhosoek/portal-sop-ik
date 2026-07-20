@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             'view-published-documents' => 'Lihat dokumen published',
             'view-governance-data' => 'Lihat metadata governance',
             'manage-documents' => 'Kelola dokumen',
+            'manage-organization-structures' => 'Kelola struktur organisasi',
             'publish-documents' => 'Publish dan archive dokumen',
             'manage-master-data' => 'Kelola master data',
             'resolve-broken-links' => 'Selesaikan laporan link',
@@ -46,7 +47,7 @@ class DatabaseSeeder extends Seeder
             ],
             'document-admin' => [
                 'display_name' => 'Document Admin',
-                'permissions' => ['view-published-documents', 'view-governance-data', 'manage-documents', 'publish-documents', 'manage-master-data', 'resolve-broken-links', 'view-audit-trail'],
+                'permissions' => ['view-published-documents', 'view-governance-data', 'manage-documents', 'manage-organization-structures', 'publish-documents', 'manage-master-data', 'resolve-broken-links', 'view-audit-trail'],
             ],
             'super-admin' => [
                 'display_name' => 'Super Admin',

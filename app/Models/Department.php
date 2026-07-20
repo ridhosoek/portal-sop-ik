@@ -20,4 +20,9 @@ class Department extends Model
     {
         return $this->hasMany(Document::class);
     }
+
+    public function organizationStructures(): HasMany
+    {
+        return $this->hasMany(OrganizationStructure::class);
+    }
 }

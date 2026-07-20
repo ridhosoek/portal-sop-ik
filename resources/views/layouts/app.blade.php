@@ -12,10 +12,12 @@
                 <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
                     <div class="flex flex-wrap items-center justify-between gap-3">
                         <a href="{{ route('dashboard') }}" class="flex items-center gap-3">
-                            <span class="grid h-10 w-10 place-items-center rounded bg-red-700 text-sm font-bold text-white">SOP</span>
+                            <span class="flex h-12 w-16 items-center justify-center overflow-hidden rounded border border-slate-200 bg-white">
+                                <img src="{{ asset('images/logo-indra-angkola.png') }}" alt="Indra Angkola" class="h-10 w-14 object-contain">
+                            </span>
                             <span>
                                 <span class="block text-lg font-semibold">Portal SOP & IK</span>
-                                <span class="block text-xs text-slate-500">Katalog dokumen internal</span>
+                                <span class="block text-xs text-slate-500">Indra Angkola Group</span>
                             </span>
                         </a>
 
@@ -34,6 +36,7 @@
                         <nav class="flex flex-wrap gap-2 text-sm">
                             <a href="{{ route('dashboard') }}" class="rounded px-3 py-2 {{ request()->routeIs('dashboard') ? 'bg-red-700 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Beranda</a>
                             <a href="{{ route('documents.index') }}" class="rounded px-3 py-2 {{ request()->routeIs('documents.*') ? 'bg-red-700 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Katalog</a>
+                            <a href="{{ route('organization-structure.index') }}" class="rounded px-3 py-2 {{ request()->routeIs('organization-structure.*') ? 'bg-red-700 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Organisasi</a>
                             @if(auth()->user()->canReadGovernance())
                                 <a href="{{ route('admin.dashboard') }}" class="rounded px-3 py-2 {{ request()->routeIs('admin.*') ? 'bg-red-700 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Admin</a>
                             @endif
@@ -43,11 +46,19 @@
             </header>
 
             <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                @if(session('status'))
-                    <div class="mb-5 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-                        {{ session('status') }}
+                @if(session('success') || session('status'))
+                    <div class="mb-5 rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+                        {{ session('success') ?? session('status') }}
                     </div>
                 @endif
+
+                @foreach(['error', 'warning'] as $flashKey)
+                    @if(session($flashKey))
+                        <div class="mb-5 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                            {{ session($flashKey) }}
+                        </div>
+                    @endif
+                @endforeach
 
                 @if($errors->any())
                     <div class="mb-5 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">

@@ -7,10 +7,13 @@ use App\Models\Category;
 use App\Models\Department;
 use App\Models\Document;
 use App\Models\DocumentType;
+use App\Models\OrganizationStructure;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PortalRequirementTest extends TestCase
@@ -37,6 +40,16 @@ class PortalRequirementTest extends TestCase
             ->assertDontSee('Pengendalian Dokumen Mutu')
             ->assertDontSee('Pengajuan dan Verifikasi Pembayaran Vendor')
             ->assertDontSee('Onboarding Karyawan Baru');
+    }
+
+    public function test_login_page_presents_portal_information_and_brand_logo(): void
+    {
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('Portal Internal Indra Angkola Group')
+            ->assertSee('Informasi internal perusahaan dalam satu portal')
+            ->assertSee('Struktur Organisasi')
+            ->assertSee('images/logo-indra-angkola.png', false);
     }
 
     public function test_employee_only_sees_documents_from_their_department(): void
@@ -183,6 +196,152 @@ class PortalRequirementTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.users.create'))
             ->assertForbidden();
+    }
+
+    public function test_document_admin_can_upload_published_organization_structure(): void
+    {
+        Storage::fake('local');
+        $this->seed();
+
+        $admin = User::where('email', 'admin@example.com')->firstOrFail();
+        $department = Department::where('code', 'OPS')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->post(route('admin.organization-structures.store'), [
+                'department_id' => $department->id,
+                'title' => 'Struktur Organisasi Operations',
+                'summary' => 'Ringkasan struktur departemen operations.',
+                'update_note' => 'Update posisi supervisor produksi.',
+                'effective_at' => now()->toDateString(),
+                'status' => OrganizationStructure::STATUS_PUBLISHED,
+                'file' => UploadedFile::fake()->create('struktur-ops.pdf', 128, 'application/pdf'),
+            ])
+            ->assertRedirect();
+
+        $structure = OrganizationStructure::where('title', 'Struktur Organisasi Operations')->firstOrFail();
+
+        $this->assertSame(OrganizationStructure::STATUS_PUBLISHED, $structure->status);
+        $this->assertSame('pdf', $structure->file_type);
+        $this->assertNotNull($structure->published_at);
+        Storage::disk('local')->assertExists($structure->file_path);
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'organization_structure.created',
+            'auditable_id' => $structure->id,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.organization-structures.index'))
+            ->assertOk()
+            ->assertSee('Kelola Struktur Organisasi')
+            ->assertSee('Struktur Organisasi Operations');
+
+        $this->actingAs($admin)
+            ->get(route('admin.organization-structures.create'))
+            ->assertOk()
+            ->assertSee('Tambah Struktur Organisasi');
+
+        $this->actingAs($admin)
+            ->get(route('admin.organization-structures.show', $structure))
+            ->assertOk()
+            ->assertSee('Ringkasan struktur departemen operations.');
+    }
+
+    public function test_employee_only_sees_own_department_organization_structure(): void
+    {
+        Storage::fake('local');
+        $this->seed();
+
+        $employee = User::where('email', 'employee@example.com')->firstOrFail();
+        $operations = Department::where('code', 'OPS')->firstOrFail();
+        $finance = Department::where('code', 'FIN')->firstOrFail();
+        $admin = User::where('email', 'admin@example.com')->firstOrFail();
+
+        Storage::disk('local')->put('organization-structures/ops/ops.pdf', 'ops-structure');
+        Storage::disk('local')->put('organization-structures/fin/fin.pdf', 'finance-structure');
+
+        $ownStructure = OrganizationStructure::create([
+            'department_id' => $operations->id,
+            'title' => 'Struktur Operations',
+            'summary' => 'Ringkasan struktur Operations.',
+            'update_note' => 'Update terbaru departemen Operations.',
+            'file_path' => 'organization-structures/ops/ops.pdf',
+            'original_file_name' => 'ops.pdf',
+            'mime_type' => 'application/pdf',
+            'file_type' => 'pdf',
+            'file_size' => 100,
+            'effective_at' => now()->toDateString(),
+            'status' => OrganizationStructure::STATUS_PUBLISHED,
+            'published_at' => now(),
+            'uploaded_by' => $admin->id,
+        ]);
+
+        $otherStructure = OrganizationStructure::create([
+            'department_id' => $finance->id,
+            'title' => 'Struktur Finance',
+            'summary' => 'Ringkasan struktur Finance.',
+            'update_note' => 'Update terbaru departemen Finance.',
+            'file_path' => 'organization-structures/fin/fin.pdf',
+            'original_file_name' => 'fin.pdf',
+            'mime_type' => 'application/pdf',
+            'file_type' => 'pdf',
+            'file_size' => 100,
+            'effective_at' => now()->toDateString(),
+            'status' => OrganizationStructure::STATUS_PUBLISHED,
+            'published_at' => now(),
+            'uploaded_by' => $admin->id,
+        ]);
+
+        $this->actingAs($employee)
+            ->get(route('organization-structure.index'))
+            ->assertOk()
+            ->assertSee('Struktur Operations')
+            ->assertSee('Ringkasan struktur Operations.')
+            ->assertDontSee('Struktur Finance');
+
+        $this->actingAs($employee)
+            ->get(route('organization-structures.file', $ownStructure))
+            ->assertOk();
+
+        $this->actingAs($employee)
+            ->get(route('organization-structures.file', $otherStructure))
+            ->assertNotFound();
+    }
+
+    public function test_success_flash_uses_green_alert_style(): void
+    {
+        $this->seed();
+
+        $employee = User::where('email', 'employee@example.com')->firstOrFail();
+
+        $this->actingAs($employee)
+            ->withSession(['status' => 'Dokumen berhasil disimpan.'])
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('border-green-200 bg-green-50', false)
+            ->assertSee('text-green-800', false);
+    }
+
+    public function test_warning_flash_uses_red_alert_style(): void
+    {
+        $this->seed();
+
+        $employee = User::where('email', 'employee@example.com')->firstOrFail();
+
+        $this->actingAs($employee)
+            ->withSession(['warning' => 'Terjadi peringatan.'])
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('border-red-200 bg-red-50', false)
+            ->assertSee('text-red-800', false);
+    }
+
+    public function test_validation_errors_use_red_alert_style(): void
+    {
+        $this->withViewErrors(['email' => 'Email wajib diisi.'])
+            ->view('auth.login')
+            ->assertSee('border-red-200 bg-red-50', false)
+            ->assertSee('text-red-800', false)
+            ->assertSee('Periksa input berikut:');
     }
 
     private function validDocumentPayload(array $overrides = []): array

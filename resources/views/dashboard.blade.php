@@ -3,7 +3,8 @@
 @section('content')
     <section class="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
         <div class="rounded border border-slate-200 bg-white p-5 shadow-sm">
-            <h1 class="text-2xl font-semibold">Temukan SOP dan IK aktif</h1>
+            <h1 class="text-2xl font-semibold">Portal informasi internal</h1>
+            <p class="mt-1 text-sm text-slate-500">Temukan SOP, IK, dan struktur organisasi sesuai hak akses departemen.</p>
             <form action="{{ route('documents.index') }}" class="mt-5 flex flex-col gap-3 sm:flex-row">
                 <input name="q" type="search" class="min-h-11 flex-1 rounded border border-slate-300 px-4 py-2 focus:border-red-700 focus:outline-none focus:ring-2 focus:ring-red-100" placeholder="Cari nomor, judul, ringkasan, atau tag">
                 <button class="rounded bg-red-700 px-5 py-2 font-medium text-white hover:bg-red-800">Cari</button>
@@ -21,6 +22,10 @@
                     <p class="text-sm text-slate-500">Departemen</p>
                     <p class="mt-1 text-3xl font-semibold">{{ $departmentCount }}</p>
                 </div>
+            </div>
+            <div class="mt-5 flex flex-wrap gap-3">
+                <a href="{{ route('documents.index') }}" class="rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Katalog Dokumen</a>
+                <a href="{{ route('organization-structure.index') }}" class="rounded bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800">Struktur Organisasi</a>
             </div>
         </div>
 
