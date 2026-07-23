@@ -43,6 +43,6 @@ class DashboardController extends Controller
     {
         return Department::query()
             ->where('active', true)
-            ->when(! $user->canReadGovernance(), fn ($query) => $query->whereKey($user->department_id ?? 0));
+            ->when(! $user->canViewAllPublishedDocuments(), fn ($query) => $query->whereKey($user->department_id ?? 0));
     }
 }

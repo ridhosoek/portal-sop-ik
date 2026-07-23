@@ -115,7 +115,7 @@ class Document extends Model
     {
         $query->publishedAndEffective();
 
-        if ($user->canReadGovernance()) {
+        if ($user->canViewAllPublishedDocuments()) {
             return $query;
         }
 

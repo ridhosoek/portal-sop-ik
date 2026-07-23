@@ -55,10 +55,10 @@ Route::middleware('auth')->group(function (): void {
             Route::patch('/broken-links/{report}/resolve', [AdminBrokenLinkReportController::class, 'resolve'])->name('broken-links.resolve');
 
             Route::get('/audit-trail', AuditTrailController::class)->name('audit.index');
-            Route::get('/users', [UserRoleController::class, 'index'])->middleware('role:super-admin')->name('users.index');
-            Route::get('/users/create', [UserRoleController::class, 'create'])->middleware('role:super-admin')->name('users.create');
-            Route::post('/users', [UserRoleController::class, 'store'])->middleware('role:super-admin')->name('users.store');
-            Route::patch('/users/{user}', [UserRoleController::class, 'update'])->middleware('role:super-admin')->name('users.update');
+            Route::get('/users', [UserRoleController::class, 'index'])->middleware('role:document-admin,super-admin')->name('users.index');
+            Route::get('/users/create', [UserRoleController::class, 'create'])->middleware('role:document-admin,super-admin')->name('users.create');
+            Route::post('/users', [UserRoleController::class, 'store'])->middleware('role:document-admin,super-admin')->name('users.store');
+            Route::patch('/users/{user}', [UserRoleController::class, 'update'])->middleware('role:document-admin,super-admin')->name('users.update');
 
             Route::get('/settings', [SettingsController::class, 'index'])->middleware('role:super-admin')->name('settings.index');
             Route::patch('/settings', [SettingsController::class, 'update'])->middleware('role:super-admin')->name('settings.update');

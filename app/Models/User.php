@@ -75,11 +75,21 @@ class User extends Authenticatable
 
     public function canManageUsers(): bool
     {
+        return $this->hasAnyRole(['document-admin', 'super-admin']);
+    }
+
+    public function canManageSettings(): bool
+    {
         return $this->hasRole('super-admin');
     }
 
     public function canReadGovernance(): bool
     {
         return $this->hasAnyRole(['document-admin', 'super-admin', 'auditor']);
+    }
+
+    public function canViewAllPublishedDocuments(): bool
+    {
+        return $this->hasAnyRole(['bod', 'document-admin', 'super-admin', 'auditor']);
     }
 }

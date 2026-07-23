@@ -73,6 +73,21 @@ class PortalRequirementTest extends TestCase
             ->assertDontSee('Pengendalian Dokumen Mutu');
     }
 
+    public function test_bod_can_see_all_published_documents_across_departments(): void
+    {
+        $this->seed();
+
+        $bod = User::where('email', 'bod@example.com')->firstOrFail();
+
+        $this->actingAs($bod)
+            ->get(route('documents.index'))
+            ->assertOk()
+            ->assertSee('Pengendalian Dokumen Mutu')
+            ->assertSee('Pemeriksaan Awal Mesin Produksi')
+            ->assertSee('Pengajuan dan Verifikasi Pembayaran Vendor')
+            ->assertDontSee('Onboarding Karyawan Baru');
+    }
+
     public function test_employee_cannot_access_admin_area(): void
     {
         $this->seed();
@@ -187,15 +202,69 @@ class PortalRequirementTest extends TestCase
         ]);
     }
 
-    public function test_document_admin_cannot_create_users(): void
+    public function test_document_admin_can_create_users_with_non_super_admin_role(): void
     {
         $this->seed();
 
         $admin = User::where('email', 'admin@example.com')->firstOrFail();
+        $bodRole = Role::where('name', 'bod')->firstOrFail();
+        $department = Department::where('code', 'FIN')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('User & Role', false)
+            ->assertDontSee('Konfigurasi');
 
         $this->actingAs($admin)
             ->get(route('admin.users.create'))
-            ->assertForbidden();
+            ->assertOk()
+            ->assertSee('Tambah User')
+            ->assertSee('BOD')
+            ->assertDontSee('Super Admin');
+
+        $this->actingAs($admin)
+            ->post(route('admin.users.store'), [
+                'name' => 'User BOD Baru',
+                'email' => 'bod.baru@example.com',
+                'password' => 'Portal123',
+                'password_confirmation' => 'Portal123',
+                'status' => 'active',
+                'department_id' => $department->id,
+                'roles' => [$bodRole->id],
+            ])
+            ->assertRedirect(route('admin.users.index'));
+
+        $user = User::where('email', 'bod.baru@example.com')->firstOrFail();
+
+        $this->assertTrue($user->roles()->where('name', 'bod')->exists());
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'user.created',
+            'auditable_id' => $user->id,
+        ]);
+    }
+
+    public function test_document_admin_cannot_assign_super_admin_role(): void
+    {
+        $this->seed();
+
+        $admin = User::where('email', 'admin@example.com')->firstOrFail();
+        $superAdminRole = Role::where('name', 'super-admin')->firstOrFail();
+        $department = Department::where('code', 'IT')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->from(route('admin.users.create'))
+            ->post(route('admin.users.store'), [
+                'name' => 'Calon Super Admin',
+                'email' => 'calon.super@example.com',
+                'password' => 'Portal123',
+                'password_confirmation' => 'Portal123',
+                'status' => 'active',
+                'department_id' => $department->id,
+                'roles' => [$superAdminRole->id],
+            ])
+            ->assertRedirect(route('admin.users.create'))
+            ->assertSessionHasErrors('roles.0');
     }
 
     public function test_document_admin_can_upload_published_organization_structure(): void

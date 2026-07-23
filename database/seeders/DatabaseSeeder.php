@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
     {
         $permissions = collect([
             'view-published-documents' => 'Lihat dokumen published',
+            'view-all-published-documents' => 'Lihat semua dokumen published lintas departemen',
             'view-governance-data' => 'Lihat metadata governance',
             'manage-documents' => 'Kelola dokumen',
             'manage-organization-structures' => 'Kelola struktur organisasi',
@@ -45,9 +46,13 @@ class DatabaseSeeder extends Seeder
                 'display_name' => 'Employee',
                 'permissions' => ['view-published-documents'],
             ],
+            'bod' => [
+                'display_name' => 'BOD',
+                'permissions' => ['view-published-documents', 'view-all-published-documents'],
+            ],
             'document-admin' => [
                 'display_name' => 'Document Admin',
-                'permissions' => ['view-published-documents', 'view-governance-data', 'manage-documents', 'manage-organization-structures', 'publish-documents', 'manage-master-data', 'resolve-broken-links', 'view-audit-trail'],
+                'permissions' => ['view-published-documents', 'view-all-published-documents', 'view-governance-data', 'manage-documents', 'manage-organization-structures', 'publish-documents', 'manage-master-data', 'resolve-broken-links', 'view-audit-trail', 'manage-users'],
             ],
             'super-admin' => [
                 'display_name' => 'Super Admin',
@@ -55,7 +60,7 @@ class DatabaseSeeder extends Seeder
             ],
             'auditor' => [
                 'display_name' => 'Auditor',
-                'permissions' => ['view-published-documents', 'view-governance-data', 'view-audit-trail'],
+                'permissions' => ['view-published-documents', 'view-all-published-documents', 'view-governance-data', 'view-audit-trail'],
             ],
         ];
 
@@ -90,6 +95,7 @@ class DatabaseSeeder extends Seeder
         $users = collect([
             ['name' => 'Super Admin', 'email' => 'superadmin@example.com', 'role' => 'super-admin', 'department' => 'IT'],
             ['name' => 'Dewi Admin Dokumen', 'email' => 'admin@example.com', 'role' => 'document-admin', 'department' => 'QA'],
+            ['name' => 'Dimas BOD', 'email' => 'bod@example.com', 'role' => 'bod', 'department' => null],
             ['name' => 'Bima Employee', 'email' => 'employee@example.com', 'role' => 'employee', 'department' => 'OPS'],
             ['name' => 'Rani Auditor', 'email' => 'auditor@example.com', 'role' => 'auditor', 'department' => 'QA'],
         ])->map(function (array $data) use ($departments): User {
@@ -99,7 +105,7 @@ class DatabaseSeeder extends Seeder
                     'name' => $data['name'],
                     'password' => Hash::make('password'),
                     'status' => 'active',
-                    'department_id' => $departments->firstWhere('code', $data['department'])->id,
+                    'department_id' => $data['department'] ? $departments->firstWhere('code', $data['department'])->id : null,
                 ]
             );
 
