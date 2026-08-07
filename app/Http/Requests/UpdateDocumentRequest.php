@@ -23,7 +23,6 @@ class UpdateDocumentRequest extends FormRequest
             'type_id' => ['required', 'exists:document_types,id'],
             'department_id' => ['required', 'exists:departments,id'],
             'category_id' => ['required', 'exists:categories,id'],
-            'owner_name' => ['nullable', 'string', 'max:255'],
             'summary' => ['nullable', 'string'],
             'version' => ['required', 'string', 'max:30'],
             'url' => ['required', 'url', 'max:2048', new AllowedDocumentUrl()],
@@ -31,8 +30,6 @@ class UpdateDocumentRequest extends FormRequest
             'review_at' => ['nullable', 'date', 'after_or_equal:effective_at'],
             'expired_at' => ['nullable', 'date', 'after_or_equal:effective_at'],
             'change_summary' => ['nullable', 'string'],
-            'tags' => ['array'],
-            'tags.*' => ['exists:tags,id'],
         ];
     }
 }

@@ -46,7 +46,7 @@
             <a href="{{ route('admin.master-data.index') }}" class="group block rounded border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-red-300 hover:shadow-md">
                 <span class="text-xs font-semibold uppercase tracking-wide text-red-700">Referensi</span>
                 <span class="mt-2 block text-base font-semibold text-slate-950 group-hover:text-red-800">Master Data</span>
-                <span class="mt-2 block min-h-10 text-sm leading-5 text-slate-500">Kelola departemen, kategori, jenis dokumen, dan tag.</span>
+                <span class="mt-2 block min-h-10 text-sm leading-5 text-slate-500">Kelola departemen, kategori, dan jenis dokumen.</span>
                 <span class="mt-4 inline-flex text-sm font-medium text-red-700 group-hover:text-red-900">Buka menu ></span>
             </a>
 

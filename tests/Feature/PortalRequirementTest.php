@@ -136,6 +136,34 @@ class PortalRequirementTest extends TestCase
         ]);
     }
 
+    public function test_document_form_does_not_show_owner_or_tag_inputs(): void
+    {
+        $this->seed();
+
+        $admin = User::where('email', 'admin@example.com')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get(route('admin.documents.create'))
+            ->assertOk()
+            ->assertDontSee('Owner')
+            ->assertDontSee('Tag')
+            ->assertDontSee('name="owner_name"', false)
+            ->assertDontSee('name="tags[]"', false);
+    }
+
+    public function test_master_data_does_not_show_tag_management(): void
+    {
+        $this->seed();
+
+        $admin = User::where('email', 'admin@example.com')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get(route('admin.master-data.index'))
+            ->assertOk()
+            ->assertDontSee('Tag')
+            ->assertDontSee("admin/master-data/tags", false);
+    }
+
     public function test_document_url_must_match_allowlist(): void
     {
         $this->seed();
@@ -421,7 +449,6 @@ class PortalRequirementTest extends TestCase
             'type_id' => DocumentType::where('code', 'SOP')->value('id'),
             'department_id' => Department::where('code', 'IT')->value('id'),
             'category_id' => Category::where('name', 'Teknologi')->value('id'),
-            'owner_name' => 'Information Technology',
             'summary' => 'Prosedur pemberian, perubahan, dan pencabutan akses aplikasi internal.',
             'status' => 'draft',
             'version' => '1.0',
@@ -430,7 +457,6 @@ class PortalRequirementTest extends TestCase
             'review_at' => now()->addYear()->toDateString(),
             'expired_at' => now()->addYears(2)->toDateString(),
             'change_summary' => 'Versi awal',
-            'tags' => [],
         ], $overrides);
     }
 }

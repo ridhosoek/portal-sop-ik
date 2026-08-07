@@ -16,7 +16,6 @@
                 <div><dt class="text-xs uppercase tracking-wide text-slate-500">Jenis</dt><dd class="mt-1 font-medium">{{ $document->type->name }}</dd></div>
                 <div><dt class="text-xs uppercase tracking-wide text-slate-500">Departemen</dt><dd class="mt-1 font-medium">{{ $document->department->name }}</dd></div>
                 <div><dt class="text-xs uppercase tracking-wide text-slate-500">Kategori</dt><dd class="mt-1 font-medium">{{ $document->category->name }}</dd></div>
-                <div><dt class="text-xs uppercase tracking-wide text-slate-500">Owner</dt><dd class="mt-1 font-medium">{{ $document->owner_name ?? '-' }}</dd></div>
             </dl>
 
             <div class="mt-6 flex flex-wrap gap-3">

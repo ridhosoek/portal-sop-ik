@@ -10,7 +10,6 @@ use App\Models\Department;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\DocumentVersion;
-use App\Models\Tag;
 use App\Rules\AllowedDocumentUrl;
 use App\Support\AuditLogger;
 use Illuminate\Http\RedirectResponse;
@@ -56,7 +55,6 @@ class DocumentController extends Controller
                 'type_id' => $data['type_id'],
                 'department_id' => $data['department_id'],
                 'category_id' => $data['category_id'],
-                'owner_name' => $data['owner_name'] ?? null,
                 'summary' => $data['summary'] ?? null,
                 'status' => Document::STATUS_DRAFT,
                 'created_by' => $request->user()->id,
@@ -74,8 +72,6 @@ class DocumentController extends Controller
                 'created_by' => $request->user()->id,
             ]);
 
-            $document->tags()->sync($data['tags'] ?? []);
-
             AuditLogger::record('document.created', $document, [], $document->fresh()->toArray());
 
             if ($data['status'] === Document::STATUS_PUBLISHED) {
@@ -90,7 +86,7 @@ class DocumentController extends Controller
 
     public function show(Document $document): View
     {
-        $document->load(['type', 'department', 'category', 'tags', 'versions.creator', 'brokenLinkReports.reporter']);
+        $document->load(['type', 'department', 'category', 'versions.creator', 'brokenLinkReports.reporter']);
 
         return view('admin.documents.show', [
             'document' => $document,
@@ -116,7 +112,6 @@ class DocumentController extends Controller
                 'type_id' => $data['type_id'],
                 'department_id' => $data['department_id'],
                 'category_id' => $data['category_id'],
-                'owner_name' => $data['owner_name'] ?? null,
                 'summary' => $data['summary'] ?? null,
                 'updated_by' => $request->user()->id,
             ]);
@@ -137,8 +132,6 @@ class DocumentController extends Controller
             } else {
                 $latest->update($versionPayload);
             }
-
-            $document->tags()->sync($data['tags'] ?? []);
 
             AuditLogger::record('document.updated', $document, $oldDocument, $document->fresh()->toArray());
         });
@@ -246,15 +239,12 @@ class DocumentController extends Controller
 
     private function formData(?Document $document = null): array
     {
-        $document?->loadMissing('tags');
-
         return [
             'document' => $document,
             'version' => $document?->latestVersion()->first(),
             'types' => DocumentType::query()->where('active', true)->orderBy('name')->get(),
             'departments' => Department::query()->where('active', true)->orderBy('name')->get(),
             'categories' => Category::query()->where('active', true)->orderBy('name')->get(),
-            'tags' => Tag::query()->orderBy('name')->get(),
         ];
     }
 }

@@ -6,7 +6,7 @@
             <h1 class="text-2xl font-semibold">Portal informasi internal</h1>
             <p class="mt-1 text-sm text-slate-500">Temukan SOP, IK, dan struktur organisasi sesuai hak akses departemen.</p>
             <form action="{{ route('documents.index') }}" class="mt-5 flex flex-col gap-3 sm:flex-row">
-                <input name="q" type="search" class="min-h-11 flex-1 rounded border border-slate-300 px-4 py-2 focus:border-red-700 focus:outline-none focus:ring-2 focus:ring-red-100" placeholder="Cari nomor, judul, ringkasan, atau tag">
+                <input name="q" type="search" class="min-h-11 flex-1 rounded border border-slate-300 px-4 py-2 focus:border-red-700 focus:outline-none focus:ring-2 focus:ring-red-100" placeholder="Cari nomor, judul, atau ringkasan">
                 <button class="rounded bg-red-700 px-5 py-2 font-medium text-white hover:bg-red-800">Cari</button>
             </form>
             <div class="mt-5 grid gap-3 sm:grid-cols-3">

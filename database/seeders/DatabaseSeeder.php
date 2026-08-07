@@ -11,11 +11,9 @@ use App\Models\DocumentVersion;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Setting;
-use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -89,9 +87,6 @@ class DatabaseSeeder extends Seeder
         $categories = collect(['Mutu', 'Operasional', 'Keselamatan', 'SDM', 'Teknologi'])
             ->map(fn (string $name) => Category::firstOrCreate(['name' => $name], ['active' => true]));
 
-        $tags = collect(['audit', 'produksi', 'onboarding', 'keamanan', 'review-tahunan'])
-            ->map(fn (string $name) => Tag::firstOrCreate(['slug' => Str::slug($name)], ['name' => $name]));
-
         $users = collect([
             ['name' => 'Super Admin', 'email' => 'superadmin@example.com', 'role' => 'super-admin', 'department' => 'IT'],
             ['name' => 'Dewi Admin Dokumen', 'email' => 'admin@example.com', 'role' => 'document-admin', 'department' => 'QA'],
@@ -123,11 +118,9 @@ class DatabaseSeeder extends Seeder
                 'type' => 'SOP',
                 'department' => 'QA',
                 'category' => 'Mutu',
-                'owner_name' => 'Quality Assurance',
                 'summary' => 'Prosedur pengendalian penerbitan, review, distribusi, dan arsip dokumen mutu perusahaan.',
                 'version' => '1.0',
                 'url' => 'https://docs.google.com/document/d/example-sop-qa-001',
-                'tags' => ['audit', 'review-tahunan'],
             ],
             [
                 'document_number' => 'IK-OPS-014',
@@ -135,11 +128,9 @@ class DatabaseSeeder extends Seeder
                 'type' => 'IK',
                 'department' => 'OPS',
                 'category' => 'Operasional',
-                'owner_name' => 'Operations',
                 'summary' => 'Instruksi kerja pemeriksaan awal mesin sebelum shift produksi dimulai.',
                 'version' => '2.1',
                 'url' => 'https://docs.google.com/document/d/example-ik-ops-014',
-                'tags' => ['produksi', 'keamanan'],
             ],
             [
                 'document_number' => 'SOP-FIN-003',
@@ -147,11 +138,9 @@ class DatabaseSeeder extends Seeder
                 'type' => 'SOP',
                 'department' => 'FIN',
                 'category' => 'Operasional',
-                'owner_name' => 'Finance',
                 'summary' => 'Prosedur pengajuan, pemeriksaan dokumen pendukung, dan verifikasi pembayaran vendor.',
                 'version' => '1.0',
                 'url' => 'https://docs.google.com/document/d/example-sop-fin-003',
-                'tags' => ['audit', 'review-tahunan'],
             ],
         ];
 
@@ -163,7 +152,7 @@ class DatabaseSeeder extends Seeder
                     'type_id' => $types->firstWhere('code', $payload['type'])->id,
                     'department_id' => $departments->firstWhere('code', $payload['department'])->id,
                     'category_id' => $categories->firstWhere('name', $payload['category'])->id,
-                    'owner_name' => $payload['owner_name'],
+                    'owner_name' => null,
                     'summary' => $payload['summary'],
                     'status' => Document::STATUS_PUBLISHED,
                     'published_at' => now()->subDays(10),
@@ -185,8 +174,6 @@ class DatabaseSeeder extends Seeder
                     'created_by' => $admin->id,
                 ]
             );
-
-            $document->tags()->sync($tags->whereIn('name', $payload['tags'])->pluck('id'));
         }
 
         $draft = Document::updateOrCreate(
@@ -196,7 +183,7 @@ class DatabaseSeeder extends Seeder
                 'type_id' => $types->firstWhere('code', 'SOP')->id,
                 'department_id' => $departments->firstWhere('code', 'HR')->id,
                 'category_id' => $categories->firstWhere('name', 'SDM')->id,
-                'owner_name' => 'Human Resources',
+                'owner_name' => null,
                 'summary' => 'Draft prosedur onboarding karyawan baru.',
                 'status' => Document::STATUS_DRAFT,
                 'created_by' => $admin->id,

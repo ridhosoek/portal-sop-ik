@@ -21,10 +21,6 @@
                     <dd class="mt-1 font-medium">{{ $document->category->name }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs uppercase tracking-wide text-slate-500">Pemilik</dt>
-                    <dd class="mt-1 font-medium">{{ $document->owner_name ?? '-' }}</dd>
-                </div>
-                <div>
                     <dt class="text-xs uppercase tracking-wide text-slate-500">Versi aktif</dt>
                     <dd class="mt-1 font-medium">{{ $document->activeVersion?->version ?? '-' }}</dd>
                 </div>
@@ -41,12 +37,6 @@
             <div class="mt-6">
                 <h2 class="font-semibold">Ringkasan</h2>
                 <p class="mt-2 leading-7 text-slate-700">{{ $document->summary ?: '-' }}</p>
-            </div>
-
-            <div class="mt-6 flex flex-wrap gap-2">
-                @foreach($document->tags as $tag)
-                    <span class="rounded bg-slate-100 px-3 py-1 text-sm text-slate-700">{{ $tag->name }}</span>
-                @endforeach
             </div>
 
             <div class="mt-6 flex flex-wrap gap-3">

@@ -79,21 +79,6 @@
             </div>
         </section>
 
-        <section class="rounded border border-slate-200 bg-white p-5 shadow-sm">
-            <h2 class="text-xl font-semibold">Tag</h2>
-            @if(auth()->user()->canManageDocuments())
-                <form method="POST" action="{{ route('admin.master-data.store', 'tags') }}" class="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-                    @csrf
-                    <input name="name" placeholder="Nama tag" class="rounded border border-slate-300 px-3 py-2 text-sm">
-                    <button class="rounded bg-red-700 px-4 py-2 text-sm font-medium text-white">Tambah</button>
-                </form>
-            @endif
-            <div class="mt-4 flex flex-wrap gap-2">
-                @foreach($tags as $tag)
-                    <span class="rounded bg-slate-100 px-3 py-1 text-sm">{{ $tag->name }}</span>
-                @endforeach
-            </div>
-        </section>
     </div>
 @endsection
 

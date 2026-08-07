@@ -3,7 +3,6 @@
 @section('content')
     @php
         $isEdit = $document !== null;
-        $selectedTags = collect(old('tags', $document?->tags?->pluck('id')->all() ?? []))->map(fn ($id) => (string) $id)->all();
     @endphp
 
     <div class="rounded border border-slate-200 bg-white p-5 shadow-sm">
@@ -47,10 +46,6 @@
                         @endforeach
                     </select>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Owner</label>
-                    <input name="owner_name" value="{{ old('owner_name', $document?->owner_name) }}" class="mt-1 w-full rounded border border-slate-300 px-3 py-2">
-                </div>
                 <div class="lg:col-span-2">
                     <label class="block text-sm font-medium text-slate-700">Ringkasan</label>
                     <textarea name="summary" rows="4" class="mt-1 w-full rounded border border-slate-300 px-3 py-2">{{ old('summary', $document?->summary) }}</textarea>
@@ -91,17 +86,6 @@
                 <div class="lg:col-span-2">
                     <label class="block text-sm font-medium text-slate-700">Ringkasan Perubahan</label>
                     <textarea name="change_summary" rows="3" class="mt-1 w-full rounded border border-slate-300 px-3 py-2">{{ old('change_summary', $version?->change_summary) }}</textarea>
-                </div>
-                <div class="lg:col-span-2">
-                    <label class="block text-sm font-medium text-slate-700">Tag</label>
-                    <div class="mt-2 flex flex-wrap gap-2">
-                        @foreach($tags as $tag)
-                            <label class="inline-flex items-center gap-2 rounded border border-slate-200 px-3 py-2 text-sm">
-                                <input type="checkbox" name="tags[]" value="{{ $tag->id }}" @checked(in_array((string) $tag->id, $selectedTags, true))>
-                                {{ $tag->name }}
-                            </label>
-                        @endforeach
-                    </div>
                 </div>
             </section>
 

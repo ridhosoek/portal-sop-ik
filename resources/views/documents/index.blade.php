@@ -77,12 +77,6 @@
 
                         <div class="mt-4 flex flex-wrap gap-2">
                             <span class="rounded bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">{{ $document->category->name }}</span>
-                            @foreach($document->tags->take(2) as $tag)
-                                <span class="rounded bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">{{ $tag->name }}</span>
-                            @endforeach
-                            @if($document->tags->count() > 2)
-                                <span class="rounded bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500">+{{ $document->tags->count() - 2 }}</span>
-                            @endif
                         </div>
 
                         <div class="mt-auto flex items-center justify-between gap-3 pt-5">

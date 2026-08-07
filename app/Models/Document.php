@@ -137,8 +137,7 @@ class Document extends Model
         return $query->where(function (Builder $query) use ($term): void {
             $query->where('document_number', 'like', "%{$term}%")
                 ->orWhere('title', 'like', "%{$term}%")
-                ->orWhere('summary', 'like', "%{$term}%")
-                ->orWhereHas('tags', fn (Builder $tagQuery) => $tagQuery->where('name', 'like', "%{$term}%"));
+                ->orWhere('summary', 'like', "%{$term}%");
         });
     }
 

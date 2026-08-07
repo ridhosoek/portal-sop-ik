@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\DocumentType;
-use App\Models\Tag;
 use App\Support\AuditLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +21,6 @@ class MasterDataController extends Controller
             'departments' => Department::query()->orderBy('name')->get(),
             'types' => DocumentType::query()->orderBy('name')->get(),
             'categories' => Category::query()->with('parent')->orderBy('name')->get(),
-            'tags' => Tag::query()->orderBy('name')->get(),
         ]);
     }
 
@@ -34,7 +32,6 @@ class MasterDataController extends Controller
             'departments' => Department::class,
             'document-types' => DocumentType::class,
             'categories' => Category::class,
-            'tags' => Tag::class,
             default => abort(404),
         };
 
@@ -47,17 +44,10 @@ class MasterDataController extends Controller
                 'name' => ['required', 'string', 'max:255'],
                 'parent_id' => ['nullable', 'exists:categories,id'],
             ]),
-            'tags' => $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-            ]),
         };
 
         if (isset($data['code'])) {
             $data['code'] = Str::upper(trim($data['code']));
-        }
-
-        if ($type === 'tags') {
-            $data['slug'] = Str::slug($data['name']);
         }
 
         /** @var Model $record */

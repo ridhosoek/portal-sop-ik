@@ -22,7 +22,7 @@ class DocumentCatalogController extends Controller
         $user = $request->user();
 
         $documents = Document::query()
-            ->with(['type', 'department', 'category', 'activeVersion', 'tags'])
+            ->with(['type', 'department', 'category', 'activeVersion'])
             ->visibleToUser($user)
             ->search($request->query('q'))
             ->when($request->query('type_id'), fn ($query, $type) => $query->where('type_id', $type))
@@ -50,7 +50,7 @@ class DocumentCatalogController extends Controller
     {
         abort_unless($document->isVisibleTo($request->user()) || $request->user()->canReadGovernance(), 404);
 
-        $document->load(['type', 'department', 'category', 'activeVersion', 'versions.creator', 'tags']);
+        $document->load(['type', 'department', 'category', 'activeVersion', 'versions.creator']);
 
         return view('documents.show', [
             'document' => $document,
