@@ -8,7 +8,7 @@
                 <p class="mt-1 text-sm text-slate-500">Informasi struktur dan pembaruan organisasi sesuai departemen.</p>
             </div>
 
-            @if(auth()->user()->canReadGovernance())
+            @if($canSelectDepartment)
                 <form method="GET" action="{{ route('organization-structure.index') }}" class="flex flex-col gap-2 sm:flex-row">
                     <select name="department_id" class="rounded border border-slate-300 px-3 py-2 text-sm focus:border-red-700 focus:outline-none focus:ring-2 focus:ring-red-100">
                         @foreach($departments as $department)

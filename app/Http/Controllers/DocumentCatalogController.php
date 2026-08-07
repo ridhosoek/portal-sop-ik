@@ -98,7 +98,7 @@ class DocumentCatalogController extends Controller
     {
         return Department::query()
             ->where('active', true)
-            ->when(! $user->canViewAllPublishedDocuments(), fn ($query) => $query->whereKey($user->department_id ?? 0))
+            ->when(! $user->canViewAllPublishedDocuments(), fn ($query) => $query->whereKey($user->accessibleDepartmentIds() ?: [0]))
             ->orderBy('name')
             ->get();
     }

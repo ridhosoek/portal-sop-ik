@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\DocumentType;
+use App\Models\Role;
 use App\Support\AuditLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
@@ -21,6 +22,8 @@ class MasterDataController extends Controller
             'departments' => Department::query()->orderBy('name')->get(),
             'types' => DocumentType::query()->orderBy('name')->get(),
             'categories' => Category::query()->with('parent')->orderBy('name')->get(),
+            'roles' => Role::query()->with('departments')->orderBy('display_name')->get(),
+            'activeDepartments' => Department::query()->where('active', true)->orderBy('name')->get(),
         ]);
     }
 
@@ -77,5 +80,23 @@ class MasterDataController extends Controller
         AuditLogger::record('master_data.toggled', $record, $old, $record->fresh()->toArray());
 
         return back()->with('status', 'Status master data diperbarui.');
+    }
+
+    public function updateRoleDepartments(Request $request, Role $role): RedirectResponse
+    {
+        abort_unless($request->user()->canManageDocuments(), 403);
+
+        $data = $request->validate([
+            'departments' => ['array'],
+            'departments.*' => ['exists:departments,id'],
+        ]);
+
+        $old = $role->load('departments')->toArray();
+
+        $role->departments()->sync($data['departments'] ?? []);
+
+        AuditLogger::record('role_departments.updated', $role, $old, $role->fresh('departments')->toArray());
+
+        return back()->with('status', 'Cakupan departemen role berhasil diperbarui.');
     }
 }

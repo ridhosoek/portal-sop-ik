@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 #[Fillable(['name', 'display_name', 'description'])]
 class Role extends Model
 {
+    public function departments(): BelongsToMany
+    {
+        return $this->belongsToMany(Department::class)->withTimestamps();
+    }
+
     public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(Permission::class)->withTimestamps();

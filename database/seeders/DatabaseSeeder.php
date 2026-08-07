@@ -48,6 +48,10 @@ class DatabaseSeeder extends Seeder
                 'display_name' => 'BOD',
                 'permissions' => ['view-published-documents', 'view-all-published-documents'],
             ],
+            'senior-manager' => [
+                'display_name' => 'Senior Manager',
+                'permissions' => ['view-published-documents'],
+            ],
             'document-admin' => [
                 'display_name' => 'Document Admin',
                 'permissions' => ['view-published-documents', 'view-all-published-documents', 'view-governance-data', 'manage-documents', 'manage-organization-structures', 'publish-documents', 'manage-master-data', 'resolve-broken-links', 'view-audit-trail', 'manage-users'],

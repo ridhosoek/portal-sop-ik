@@ -26,7 +26,7 @@
                 </div>
                 <div>
                     <p class="text-sm font-semibold text-slate-900">Informasi Internal</p>
-                    <p class="mt-1 text-sm leading-6 text-slate-500">Akses informasi mengikuti role dan departemen.</p>
+                    <p class="mt-1 text-sm leading-6 text-slate-500">Akses informasi mengikuti role dan cakupan departemen.</p>
                 </div>
             </div>
 

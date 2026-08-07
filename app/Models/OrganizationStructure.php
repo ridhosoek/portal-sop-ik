@@ -53,8 +53,18 @@ class OrganizationStructure extends Model
 
     public function scopeVisibleToUser(Builder $query, User $user): Builder
     {
+        $departmentIds = $user->accessibleDepartmentIds();
+
         return $query->published()
-            ->when(! $user->canReadGovernance(), fn (Builder $query) => $query->where('department_id', $user->department_id ?? 0));
+            ->when(! $user->canViewAllPublishedDocuments(), function (Builder $query) use ($departmentIds): void {
+                if ($departmentIds === []) {
+                    $query->whereRaw('1 = 0');
+
+                    return;
+                }
+
+                $query->whereIn('department_id', $departmentIds);
+            });
     }
 
     public function isImage(): bool
@@ -68,6 +78,10 @@ class OrganizationStructure extends Model
             return false;
         }
 
-        return $user->canReadGovernance() || $this->department_id === $user->department_id;
+        if ($user->canViewAllPublishedDocuments()) {
+            return true;
+        }
+
+        return in_array($this->department_id, $user->accessibleDepartmentIds(), true);
     }
 }

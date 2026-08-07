@@ -15,10 +15,16 @@ class OrganizationStructureController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-        $departments = Department::query()->where('active', true)->orderBy('name')->get();
-        $departmentId = $user->canReadGovernance()
-            ? (int) ($request->query('department_id') ?: $user->department_id)
-            : $user->department_id;
+        $departments = Department::query()
+            ->where('active', true)
+            ->when(! $user->canViewAllPublishedDocuments(), fn ($query) => $query->whereKey($user->accessibleDepartmentIds() ?: [0]))
+            ->orderBy('name')
+            ->get();
+
+        $requestedDepartmentId = (int) $request->query('department_id');
+        $departmentId = $requestedDepartmentId && $departments->contains('id', $requestedDepartmentId)
+            ? $requestedDepartmentId
+            : (int) ($departments->first()?->id ?? 0);
 
         $currentStructure = null;
         $history = collect();
@@ -40,6 +46,7 @@ class OrganizationStructureController extends Controller
             'history' => $history,
             'departments' => $departments,
             'selectedDepartmentId' => $departmentId,
+            'canSelectDepartment' => $departments->count() > 1,
         ]);
     }
 

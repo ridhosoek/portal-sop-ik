@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function (): void {
             Route::get('/master-data', [MasterDataController::class, 'index'])->name('master-data.index');
             Route::post('/master-data/{type}', [MasterDataController::class, 'store'])->name('master-data.store');
             Route::patch('/master-data/{type}/{id}/toggle', [MasterDataController::class, 'toggle'])->name('master-data.toggle');
+            Route::patch('/master-data/roles/{role}/departments', [MasterDataController::class, 'updateRoleDepartments'])->name('master-data.roles.departments.update');
 
             Route::get('/broken-links', [AdminBrokenLinkReportController::class, 'index'])->name('broken-links.index');
             Route::patch('/broken-links/{report}/resolve', [AdminBrokenLinkReportController::class, 'resolve'])->name('broken-links.resolve');

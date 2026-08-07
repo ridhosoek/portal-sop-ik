@@ -5,7 +5,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h1 class="text-2xl font-semibold">User & Role</h1>
-                <p class="mt-1 text-sm text-slate-500">Kelola akun, status, departemen, dan role pengguna.</p>
+                <p class="mt-1 text-sm text-slate-500">Kelola akun, status, departemen utama, role, dan reset password pengguna.</p>
             </div>
             <a href="{{ route('admin.users.create') }}" class="rounded bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800">Tambah User</a>
         </div>
@@ -21,7 +21,7 @@
                                 <p class="text-sm text-slate-500">{{ $user->email }}</p>
                             </div>
                             <span class="rounded border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">{{ ucfirst($user->status) }}</span>
-                            <span class="rounded border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">{{ $user->department?->name ?? 'Tanpa departemen' }}</span>
+                            <span class="rounded border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">{{ $user->department?->name ?? 'Tanpa departemen utama' }}</span>
                             <div class="flex flex-wrap gap-2">
                                 @foreach($user->roles as $role)
                                     <span class="rounded border border-slate-200 bg-white px-3 py-2 text-sm">{{ $role->display_name }}</span>
@@ -46,7 +46,7 @@
                                     <option value="inactive" @selected($user->status === 'inactive')>Inactive</option>
                                 </select>
                                 <select name="department_id" class="rounded border border-slate-300 px-3 py-2 text-sm">
-                                    <option value="">Tanpa departemen</option>
+                                    <option value="">Tanpa departemen utama</option>
                                     @foreach($departments as $department)
                                         <option value="{{ $department->id }}" @selected($user->department_id === $department->id)>{{ $department->name }}</option>
                                     @endforeach

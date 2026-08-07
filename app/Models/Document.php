@@ -119,11 +119,13 @@ class Document extends Model
             return $query;
         }
 
-        if (! $user->department_id) {
+        $departmentIds = $user->accessibleDepartmentIds();
+
+        if ($departmentIds === []) {
             return $query->whereRaw('1 = 0');
         }
 
-        return $query->where('department_id', $user->department_id);
+        return $query->whereIn('department_id', $departmentIds);
     }
 
     public function scopeSearch(Builder $query, ?string $term): Builder

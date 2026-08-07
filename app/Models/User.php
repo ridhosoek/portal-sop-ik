@@ -92,4 +92,41 @@ class User extends Authenticatable
     {
         return $this->hasAnyRole(['bod', 'document-admin', 'super-admin', 'auditor']);
     }
+
+    public function roleScopedDepartmentIds(): array
+    {
+        $roleIds = $this->relationLoaded('roles')
+            ? $this->roles->pluck('id')->all()
+            : $this->roles()->pluck('roles.id')->all();
+
+        if ($roleIds === []) {
+            return [];
+        }
+
+        return Department::query()
+            ->where('active', true)
+            ->whereHas('roles', fn ($query) => $query->whereIn('roles.id', $roleIds))
+            ->pluck('departments.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    public function accessibleDepartmentIds(): array
+    {
+        if ($this->canViewAllPublishedDocuments()) {
+            return Department::query()
+                ->where('active', true)
+                ->pluck('id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+        }
+
+        $departmentIds = $this->roleScopedDepartmentIds();
+
+        if ($departmentIds === [] && $this->department_id) {
+            $departmentIds[] = (int) $this->department_id;
+        }
+
+        return array_values(array_unique($departmentIds));
+    }
 }

@@ -73,6 +73,30 @@ class PortalRequirementTest extends TestCase
             ->assertDontSee('Pengendalian Dokumen Mutu');
     }
 
+    public function test_senior_manager_sees_documents_from_role_department_scope(): void
+    {
+        $this->seed();
+
+        $operations = Department::where('code', 'OPS')->firstOrFail();
+        $finance = Department::where('code', 'FIN')->firstOrFail();
+        $role = Role::where('name', 'senior-manager')->firstOrFail();
+        $role->departments()->sync([$operations->id, $finance->id]);
+
+        $user = User::factory()->create([
+            'name' => 'Senior Manager Operations Finance',
+            'email' => 'senior.manager@example.com',
+            'department_id' => null,
+        ]);
+        $user->roles()->sync([$role->id]);
+
+        $this->actingAs($user)
+            ->get(route('documents.index'))
+            ->assertOk()
+            ->assertSee('Pemeriksaan Awal Mesin Produksi')
+            ->assertSee('Pengajuan dan Verifikasi Pembayaran Vendor')
+            ->assertDontSee('Pengendalian Dokumen Mutu');
+    }
+
     public function test_bod_can_see_all_published_documents_across_departments(): void
     {
         $this->seed();
@@ -162,6 +186,37 @@ class PortalRequirementTest extends TestCase
             ->assertOk()
             ->assertDontSee('Tag')
             ->assertDontSee("admin/master-data/tags", false);
+    }
+
+    public function test_document_admin_can_update_role_department_scope(): void
+    {
+        $this->seed();
+
+        $admin = User::where('email', 'admin@example.com')->firstOrFail();
+        $role = Role::where('name', 'senior-manager')->firstOrFail();
+        $operations = Department::where('code', 'OPS')->firstOrFail();
+        $finance = Department::where('code', 'FIN')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->get(route('admin.master-data.index'))
+            ->assertOk()
+            ->assertSee('Cakupan Departemen per Role')
+            ->assertSee('Senior Manager');
+
+        $this->actingAs($admin)
+            ->patch(route('admin.master-data.roles.departments.update', $role), [
+                'departments' => [$operations->id, $finance->id],
+            ])
+            ->assertRedirect();
+
+        $this->assertSame(
+            [$operations->id, $finance->id],
+            $role->fresh()->departments()->orderBy('id')->pluck('departments.id')->all()
+        );
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'role_departments.updated',
+            'auditable_id' => $role->id,
+        ]);
     }
 
     public function test_document_url_must_match_allowlist(): void

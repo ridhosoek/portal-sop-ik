@@ -38,9 +38,9 @@
                     </select>
                 </div>
                 <div>
-                    <label for="department_id" class="block text-sm font-medium text-slate-700">Departemen</label>
+                    <label for="department_id" class="block text-sm font-medium text-slate-700">Departemen Utama</label>
                     <select id="department_id" name="department_id" class="mt-1 w-full rounded border border-slate-300 px-3 py-2">
-                        <option value="">Tanpa departemen</option>
+                        <option value="">Tanpa departemen utama</option>
                         @foreach($departments as $department)
                             <option value="{{ $department->id }}" @selected(old('department_id') == $department->id)>{{ $department->name }}</option>
                         @endforeach
