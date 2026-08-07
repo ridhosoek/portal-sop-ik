@@ -93,6 +93,26 @@ class UserRoleController extends Controller
         return back()->with('status', 'User dan role berhasil diperbarui.');
     }
 
+    public function resetPassword(Request $request, User $user): RedirectResponse
+    {
+        abort_if(! $request->user()->hasRole('super-admin') && $user->hasRole('super-admin'), 403);
+
+        $data = $request->validate([
+            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
+        ]);
+
+        $user->forceFill([
+            'password' => Hash::make($data['password']),
+        ])->save();
+
+        AuditLogger::record('user.password_reset', $user, [], [
+            'target_user_id' => $user->id,
+            'target_email' => $user->email,
+        ], $request->user());
+
+        return back()->with('status', 'Password user berhasil direset.');
+    }
+
     private function manageableRoles(User $actor)
     {
         return Role::query()

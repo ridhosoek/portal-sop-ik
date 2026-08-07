@@ -59,6 +59,7 @@ Route::middleware('auth')->group(function (): void {
             Route::get('/users/create', [UserRoleController::class, 'create'])->middleware('role:document-admin,super-admin')->name('users.create');
             Route::post('/users', [UserRoleController::class, 'store'])->middleware('role:document-admin,super-admin')->name('users.store');
             Route::patch('/users/{user}', [UserRoleController::class, 'update'])->middleware('role:document-admin,super-admin')->name('users.update');
+            Route::patch('/users/{user}/password', [UserRoleController::class, 'resetPassword'])->middleware('role:document-admin,super-admin')->name('users.password.update');
 
             Route::get('/settings', [SettingsController::class, 'index'])->middleware('role:super-admin')->name('settings.index');
             Route::patch('/settings', [SettingsController::class, 'update'])->middleware('role:super-admin')->name('settings.update');

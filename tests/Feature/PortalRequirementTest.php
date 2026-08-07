@@ -295,6 +295,44 @@ class PortalRequirementTest extends TestCase
             ->assertSessionHasErrors('roles.0');
     }
 
+    public function test_document_admin_can_reset_user_password(): void
+    {
+        $this->seed();
+
+        $admin = User::where('email', 'admin@example.com')->firstOrFail();
+        $employee = User::where('email', 'employee@example.com')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.password.update', $employee), [
+                'password' => 'Reset123',
+                'password_confirmation' => 'Reset123',
+            ])
+            ->assertRedirect();
+
+        $this->assertTrue(Hash::check('Reset123', $employee->fresh()->password));
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'user.password_reset',
+            'auditable_id' => $employee->id,
+        ]);
+    }
+
+    public function test_document_admin_cannot_reset_super_admin_password(): void
+    {
+        $this->seed();
+
+        $admin = User::where('email', 'admin@example.com')->firstOrFail();
+        $superAdmin = User::where('email', 'superadmin@example.com')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.password.update', $superAdmin), [
+                'password' => 'Reset123',
+                'password_confirmation' => 'Reset123',
+            ])
+            ->assertForbidden();
+
+        $this->assertTrue(Hash::check('password', $superAdmin->fresh()->password));
+    }
+
     public function test_document_admin_can_upload_published_organization_structure(): void
     {
         Storage::fake('local');
